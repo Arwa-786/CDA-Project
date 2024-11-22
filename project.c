@@ -61,7 +61,10 @@ int instruction_decode(unsigned op,struct_controls *controls)
 /* 5 Points */
 void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigned *data2)
 {
-
+    //it basically "reads" the register (which is the number thats in r1/r2's
+    //position in the reg array), and copies it into data 1 and 2. "reading" it.)
+    *data1 = Reg[r1]; 
+    *data2 = Reg[r2];
 }
 
 
@@ -124,6 +127,18 @@ void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,
 /* 10 Points */
 void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char Zero,unsigned *PC)
 {
+    *PC = *PC + 4; //we always add four regardless of instruction
+
+    if (Jump == 1){//check if we need to jump
+        *PC = (jsec << 2) | (*PC & 0xf0000000); //combines both jsec (address to jump to, shifted 2 bits to the left) with the upper four bits of PC
+    }
+
+    if (Branch == 1){ //if branch is true
+        if (Zero == 1){ //if zero is true
+            *PC = *PC + (extended_value << 2); //add pc to extended value and shift 2 so it goes from words to bits
+        }
+        
+    }
 
 }
 
