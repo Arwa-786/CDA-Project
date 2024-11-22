@@ -12,7 +12,13 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 /* 10 Points */
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 {
+    if (PC % 4 != 0){ // word alignment check
+        return 1; //halt
+    }
 
+    *instruction = Mem[PC >> 2]; // mem not an array of words but bytes
+
+    return 
 }
 
 
@@ -20,7 +26,26 @@ int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 /* 10 Points */
 void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsigned *r2, unsigned *r3, unsigned *funct, unsigned *offset, unsigned *jsec)
 {
+    // bits 31-26
+    *op = (instruction >> 26) & 0x3F; 
 
+    // bits 25-21
+    *r1 = (instruction >> 21) & 0x1F;  
+
+    // bits 20-16
+    *r2 = (instruction >> 16) & 0x1F; 
+
+    // bits 15-11
+    *r3 = (instruction >> 11) & 0x1F;  
+
+    // bits 5-0
+    *funct = instruction & 0x3F;  
+
+    // bits 15-0
+    *offset = instruction & 0xFFFF;  
+
+    // jump address, regardless of instruction type (bits 25-0)
+    *jsec = instruction & 0x03FFFFFF;  
 }
 
 
@@ -44,7 +69,13 @@ void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigne
 /* 10 Points */
 void sign_extend(unsigned offset,unsigned *extended_value)
 {
+    if (offset & 0x8000) {  // if negative
 
+        *extended_value = offset | 0xFFFF0000;  // fill with 1s
+    } else {
+
+        *extended_value = offset;  // fill with 0s
+    }
 }
 
 /* ALU operations */
