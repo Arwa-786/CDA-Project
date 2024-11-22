@@ -5,7 +5,36 @@
 /* 10 Points */
 void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 {
-
+    if (ALUControl == 0) {  
+        *ALUresult = A + B;
+    }
+    else if (ALUControl == 1) { 
+        *ALUresult = A - B;
+    }
+    else if (ALUControl == 2) {  
+        *ALUresult = (A < B) ? 1 : 0;
+    }
+    else if (ALUControl == 3) {  
+        *ALUresult = ((unsigned)A < (unsigned)B) ? 1 : 0;
+    }
+    else if (ALUControl == 4) {  
+        *ALUresult = A & B;
+    }
+    else if (ALUControl == 5) {  
+        *ALUresult = A | B;
+    }
+    else if (ALUControl == 6) {  
+        *ALUresult = B << 16;
+    }
+    else if (ALUControl == 7) {  
+        *ALUresult = ~A;
+    }
+    if (*ALUresult == 0) {
+        *Zero = 1;
+    } 
+    else {
+        *Zero = 0;
+    }
 }
 
 /* instruction fetch */
@@ -54,6 +83,53 @@ void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsi
 /* 15 Points */
 int instruction_decode(unsigned op,struct_controls *controls)
 {
+    controls->RegDst = 0;
+    controls->Jump = 0;
+    controls->Branch = 0;
+    controls->MemRead = 0;
+    controls->MemWrite = 0;
+    controls->RegWrite = 0;
+    controls->MemtoReg = 0;
+    controls->ALUOp = 0;
+    controls->ALUSrc = 0;
+
+    
+    if (op == 0) {  
+        controls->RegDst = 1;       
+        controls->RegWrite = 1;      
+        controls->ALUOp = 7;         
+    }
+    else if (op == 2) {  
+        controls->Jump = 1;         
+    }
+    else if (op == 4) {  
+        controls->Branch = 1;      
+        controls->ALUOp = 1;        
+    }
+    else if (op == 35) {  
+        controls->MemRead = 1;     
+        controls->RegWrite = 1;    
+        controls->MemtoReg = 1;     
+        controls->ALUSrc = 1;       
+        controls->ALUOp = 0;       
+    }
+    else if (op == 43) {  
+        controls->MemWrite = 1;     
+        controls->ALUSrc = 1;      
+        controls->ALUOp = 0; 
+    }    
+    else if (op == 8) {  
+        controls->RegDst = 0;       
+        controls->RegWrite = 1;     
+        controls->ALUSrc = 1;       
+        controls->ALUOp = 0;      
+    }
+    else {
+        
+        return 1;  
+    }
+
+    return 0;
 
 }
 
@@ -85,6 +161,12 @@ void sign_extend(unsigned offset,unsigned *extended_value)
 /* 10 Points */
 int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero)
 {
+    if (ALUSrc == 1) {
+        ALU(data1, extended_value, ALUOp, ALUresult, Zero); 
+    } else {
+        ALU(data1, data2, ALUOp, ALUresult, Zero);  
+    }
+    return 0;
 
 }
 
