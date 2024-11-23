@@ -195,13 +195,28 @@ int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsig
 /* 10 Points */
 void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,char RegWrite,char RegDst,char MemtoReg,unsigned *Reg)
 {
-    //We bring data from memory since RegWrite and MemtoReg are both 1 and assign this to r2
-    if (RegWrite == 1 && MemtoReg == 1) 
-        Reg[r2] = memdata;
+    if(RegWrite == 1){
+		 // If Mem to Register
+		 if (MemtoReg == 1 && RegDst == 0) {
+			Reg[r2] = memdata;
+		 }
 
-    //We bring data from ALUresult since MemtoReg is not 1 and we assign this to r3
-    if (RegWrite == 1 && MemtoReg == 0)
-        Reg[r3] = ALUresult;
+		 //If Mem to Register but r3
+
+		 else if(MemtoReg == 1 && RegDst == 1){
+			 Reg[r3] = memdata;
+		 }
+
+		 // If Result to Register
+		 else if (MemtoReg == 0 && RegDst == 0) {
+			Reg[r2] = ALUresult;
+		 }
+
+		 // If Result to Register but next value
+		 else if (MemtoReg == 0 && RegDst == 1){
+			Reg[r3] = ALUresult;
+		 }
+	}
     
 }
 
@@ -215,7 +230,7 @@ void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char 
         *PC = (jsec << 2) | (*PC & 0xf0000000); //combines both jsec (address to jump to, shifted 2 bits to the left) with the upper four bits of PC
     }
 
-    if (Branch == 1){ //if branch is true
+    if (Branch == 1 && Zero == 1){ //if branch is true
         if (Zero == 1){ //if zero is true
             *PC = *PC + (extended_value << 2); //add pc to extended value and shift 2 so it goes from words to bits
         }
