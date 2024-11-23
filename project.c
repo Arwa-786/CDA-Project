@@ -161,13 +161,68 @@ void sign_extend(unsigned offset,unsigned *extended_value)
 /* 10 Points */
 int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero)
 {
-    if (ALUSrc == 1) {
-        ALU(data1, extended_value, ALUOp, ALUresult, Zero); 
-    } else {
-        ALU(data1, data2, ALUOp, ALUresult, Zero);  
-    }
-    return 0;
+    //Check which data we are opperating on by ALU src
+	if(ALUSrc == 1){
+		data2 = extended_value;
+	}
 
+	//All ALUOps just send instructions to ALU which updates ALU result
+	//ALUOP 7 is R type insturction which requires use of funct
+	if(ALUOp == 7){
+		//Find the proper ALUOp for each R type instruction
+		switch(funct) {
+
+			//Add
+			case 32:
+					ALUOp = 0;
+					break;
+			//Sub
+			case 34:
+					ALUOp = 1;
+					break;
+			//Set Less Signed
+			case 42:
+					ALUOp = 2;
+					break;
+			//Set Less Unsigned
+			case 43:
+					ALUOp = 3;
+					break;
+			//And
+			case 36:
+					ALUOp = 4;
+					break;
+			//Or
+			case 37:
+					ALUOp = 5;
+					break;
+			//Shift Left extended value 16
+			case 6:
+					ALUOp = 6;
+					break;
+			//Nor
+			case 39:
+					ALUOp = 7;
+					break;
+			//Halt not proper funct
+			default:
+					return 1;
+
+		}
+		//Send to ALU for funct
+		ALU(data1,data2,ALUOp,ALUresult,Zero);
+
+	}
+
+
+	else{
+	//Send to ALU for non funct
+	ALU(data1,data2,ALUOp,ALUresult,Zero);
+	}
+
+	//Return
+	return 0;
+}
 }
 
 /* Read / Write Memory */
