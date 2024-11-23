@@ -148,12 +148,12 @@ void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigne
 /* 10 Points */
 void sign_extend(unsigned offset,unsigned *extended_value)
 {
-    if (offset & 0x8000) {  // if negative
+    if (offset >> 1 == 1) {  // if negative
 
         *extended_value = offset | 0xFFFF0000;  // fill with 1s
     } else {
 
-        *extended_value = offset;  // fill with 0s
+        *extended_value = offset & 0x0000ffff;  // fill with 0s
     }
 }
 
