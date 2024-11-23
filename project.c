@@ -41,40 +41,32 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 /* 10 Points */
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 {
-    if (PC % 4 != 0){ // word alignment check
-        return 1; //halt
+    if (PC % 4 == 0) {
+        *instruction = Mem[PC >> 2];
+        return 0;
     }
-
-    *instruction = Mem[PC >> 2]; // mem not an array of words but bytes
-
-    return 
+    else{//If not Halt
+	return 1;
+    }
 }
 
 
 /* instruction partition */
 /* 10 Points */
 void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsigned *r2, unsigned *r3, unsigned *funct, unsigned *offset, unsigned *jsec)
-{
-    // bits 31-26
-    *op = (instruction >> 26) & 0x3F; 
+{unsigned rPartition		    = 0x1f; //5 bits total
+	unsigned functopPartition	= 0x0000003f; //6 bits total
+	unsigned offsetPartition	= 0x0000ffff; //16 bits total
+	unsigned jsecPartition	    = 0x03ffffff; //26 bits total
 
-    // bits 25-21
-    *r1 = (instruction >> 21) & 0x1F;  
-
-    // bits 20-16
-    *r2 = (instruction >> 16) & 0x1F; 
-
-    // bits 15-11
-    *r3 = (instruction >> 11) & 0x1F;  
-
-    // bits 5-0
-    *funct = instruction & 0x3F;  
-
-    // bits 15-0
-    *offset = instruction & 0xFFFF;  
-
-    // jump address, regardless of instruction type (bits 25-0)
-    *jsec = instruction & 0x03FFFFFF;  
+	// shift to right align and then bit-masking the right amount
+	*op		= (instruction >> 26)   & functopPartition;	// instruction [31-26] #need 6 bits
+	*r1		= (instruction >> 21)   & rPartition;       // instruction [25-21] #need 5 bits
+	*r2		= (instruction >> 16)   & rPartition;       // instruction [20-16] #need 5 bits
+	*r3		= (instruction >> 11)   & rPartition;       // instruction [15-11] #need 5 bits
+	*funct	= instruction           & functopPartition; // instruction [5-0]   #need 6 bits
+	*offset	= instruction           & offsetPartition;  // instruction [15-0]  #need 16 bits
+	*jsec	= instruction           & jsecPartition;    // instruction [25-0]  #need 26 bits
 }
 
 
